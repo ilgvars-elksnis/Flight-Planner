@@ -1,4 +1,8 @@
-namespace Flight_Planner
+using FlightPlanner.Handlers;
+using FlightPlanner.Storage;
+using Microsoft.AspNetCore.Authentication;
+
+namespace FlightPlanner
 {
     public class Program
     {
@@ -12,6 +16,10 @@ namespace Flight_Planner
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
+            builder.Services.AddScoped<FlightStorage>();
 
             var app = builder.Build();
 
@@ -22,6 +30,7 @@ namespace Flight_Planner
                 app.UseSwaggerUI();
             }
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
