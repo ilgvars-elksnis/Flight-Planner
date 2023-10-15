@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flight Planner", "Flight Planner.csproj", "{14E3DC3D-D64A-4FD7-96CC-0A393A54415F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flight Planner", "Flight Planner.csproj", "{14E3DC3D-D64A-4FD7-96CC-0A393A54415F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{81593351-515A-4C7B-A925-F4DF2627B232}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

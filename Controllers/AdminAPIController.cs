@@ -12,22 +12,25 @@ namespace FlightPlanner.Controllers
     public class AdminAPIController : ControllerBase
     {
         private readonly FlightStorage _storage;
+        private readonly FlightPlannerDbContext _context;
         private static readonly object _locker = new object();
-        public AdminAPIController()
+        public AdminAPIController(FlightPlannerDbContext context)
         {
-            _storage = new FlightStorage();
+            _context = context;
         }
 
         [Route("flights/{id}")]
         [HttpGet]
         public IActionResult GetFlight(int id)
         {
-            var flight = _storage.GetFlight(id);
-            if (flight == null)
+           
+            var flights = _context.Flights.SingleOrDefault(f => f.ID == id);
+            if (flights == null)
             {
-                return NotFound();
+                    return NotFound();
             }
-            return Ok(flight);
+            return Ok(flights);
+            
         }
 
         [Route("flights")]
@@ -70,12 +73,24 @@ namespace FlightPlanner.Controllers
                 if (arrivalTime <= departureTime)
                     return BadRequest("Arrival must be later than departure");
 
-                if (_storage.GetExistingFlight(flight) != null)
+                var existingFlight = _context.Flights.FirstOrDefault(f =>
+                    f.From.Country == flight.From.Country &&
+                    f.From.City == flight.From.City &&
+                    f.From.AirportCode == flight.From.AirportCode &&
+                    f.To.Country == flight.To.Country &&
+                    f.To.City == flight.To.City &&
+                    f.To.AirportCode == flight.To.AirportCode &&
+                    f.DepartureTime == flight.DepartureTime
+    );
+
+                if (existingFlight != null)
                 {
                     return Conflict("Flight already exists.");
                 }
 
-                _storage.AddFlight(flight);
+                // _storage.AddFlight(flight);
+                _context.Flights.Add(flight);
+                _context.SaveChanges();
             }
 
             return Created("", flight);
@@ -86,7 +101,16 @@ namespace FlightPlanner.Controllers
         [HttpDelete]
         public IActionResult DeleteFlight(int id)
         {
-            _storage.DeleteFlight(id);
+            //_storage.DeleteFlight(id);
+
+            var flight = _context.Flights.SingleOrDefault(f => f.ID == id);
+            if (flight == null)
+            {
+                return Ok();
+            }
+            _context.Flights.Remove(flight);
+            _context.SaveChanges(); // Save changes to the database
+            
 
             return Ok();
         }

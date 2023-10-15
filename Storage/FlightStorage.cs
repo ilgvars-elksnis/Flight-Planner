@@ -1,4 +1,5 @@
 ﻿using FlightPlanner.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightPlanner.Storage
 {
@@ -6,8 +7,14 @@ namespace FlightPlanner.Storage
     {
         private static List<Flight> _flightStorage = new List<Flight>();
         private static int _id = 0;
+        private readonly FlightPlannerDbContext _context;
 
-        public bool AddFlight(Flight flight)
+        public FlightStorage(FlightPlannerDbContext context, FlightStorage storage)
+        {
+            _context = context;
+        }
+
+        /*public bool AddFlight(Flight flight)
         {
             var existingFlight = GetExistingFlight(flight);
             if (existingFlight != null)
@@ -19,7 +26,7 @@ namespace FlightPlanner.Storage
             _flightStorage.Add(flight);
             Console.WriteLine($"Flight added: {flight.ID}");
             return true;
-        }
+        }*/
 
         public List<Flight> GetCopyOfFlightStorage()
         {
@@ -83,15 +90,16 @@ namespace FlightPlanner.Storage
 
         public List<Flight> SearchFlights(SearchFlightsRequest request)
         {
-            return _flightStorage.Where(f =>
+            if (string.IsNullOrEmpty(request.From) || string.IsNullOrEmpty(request.To) || request.From == request.To)
             {
+                throw new ArgumentException("Invalid request: Missing required fields. From and To must be provided.");
+            }
 
-                return f.From.AirportCode == request.From &&
-                        f.To.AirportCode == request.To &&
-                        f.DepartureTime.Contains(request.DepartureDate);
-
-            }).ToList();
-
+            return _context.Flights
+                .Where(f => f.From.AirportCode == request.From &&
+                            f.To.AirportCode == request.To &&
+                            f.DepartureTime.Contains(request.DepartureDate))
+                .ToList();
         }
     }
 }
